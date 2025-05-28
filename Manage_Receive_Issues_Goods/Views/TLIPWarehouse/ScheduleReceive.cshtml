@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="~/css/custom.css">
     <link rel="stylesheet" href="~/css/receivedTLIP.css">
-    <script src="~/lib/framework/signalr/signalr.min.js"></script>
+    @* <script src="~/lib/framework/signalr/signalr.min.js"></script> *@
     <link href='~/lib/framework/signalr/bootstrap.min.css'>
     <script src='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
@@ -87,8 +87,8 @@
                 <div class="modal-body">
                     <form id="delayForm" asp-controller="TLIPWarehouse" asp-action="DelayPlan">
                         <div class="mb-3">
-                            <label for="delayDate" class="form-label">Select new date (DD/MM/YYYY)</label>
-                            <input type="text" class="form-control" id="delayDate" placeholder="DD/MM/YYYY" required>
+                            <label for="delayDate" class="form-label">Select new date</label>
+                            <input type="date" class="form-control" id="delayDate" required>
                         </div>
                         <div class="mb-3">
                             <label for="delayTime" class="form-label">Select new time</label>

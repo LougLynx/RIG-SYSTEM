@@ -18,6 +18,7 @@
     notificationConnection.onreconnecting(error => {
         console.assert(notificationConnection.state === signalR.HubConnectionState.Reconnecting);
         console.log("Try to reconnecting to SignalR...");
+        alert("reconnecting");
     });
     notificationConnection.onreconnected(connectionId => {
         console.assert(notificationConnection.state === signalR.HubConnectionState.Connected);
@@ -2185,7 +2186,16 @@
             .then(response => response.json())
             .then(data => data.WeekdayId);
     }
-
+    window.addEventListener("beforeunload", function (e) {
+        e.preventDefault();
+        
+        e.returnValue = 'Are you sure you want to reload or leave this page?';
+    });
+    //window.addEventListener('beforeunload', function (e) {
+    //    // Standard message is ignored by most browsers, but returning a value triggers the dialog
+    //    e.preventDefault();
+    //    //e.returnValue = 'Are you sure you want to reload or leave this page?';
+    //});
 
 
     /**
@@ -2209,52 +2219,48 @@
             buttonContainer.style.display = 'none';
         }
     });
-});
-$(document).on('click', '[id^="delayButton-"]', function () {
-    var planDetailId = this.id.replace('delayButton-', '');
-    if (!planDetailId || isNaN(planDetailId)) {
-        alert('Invalid plan detail ID.');
-        return;
-    }
-    $('#delayPlanDetailId').val(planDetailId);
-    $(`#planModal-${planDetailId}`).modal('hide');
-    $(`#delayModal`).modal('show');
-});
-
-$('#confirmDelayBtn').off('click').on('click', function () {
-    var planDetailId = $('#delayPlanDetailId').val();
-    var newDate = $('#delayDate').val();
-    var newTime = $('#delayTime').val();
-
-    if (!newDate || !newTime || newDate === '' || newTime === '') {
-        alert('Please select both date and time.');
-        return;
-    }
-
-    if (!newDate.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-        alert('Please enter a valid date in DD/MM/YYYY format.');
-        return;
-    }
-
-    $.ajax({
-        url: '/TLIPWarehouse/DelayPlan',
-        method: 'POST',
-        data: {
-            planDetailId: planDetailId,
-            newDate: newDate,
-            newTime: newTime
-        },
-        success: function (response) {
-            $('#delayModal').modal('hide');
-            alert(response.message || 'Delay recorded successfully.');
-            location.reload();
-        },
-        error: function (err) {
-            var errorMessage = 'Failed to delay the schedule.';
-            alert(errorMessage);
+    $(document).on('click', '[id^="delayButton-"]', function () {
+        var planDetailId = this.id.replace('delayButton-', '');
+        if (!planDetailId || isNaN(planDetailId)) {
+            alert('Invalid plan detail ID.');
+            return;
         }
+        $('#delayPlanDetailId').val(planDetailId);
+        $(`#planModal-${planDetailId}`).modal('hide');
+        $(`#delayModal`).modal('show');
+    });
+
+    $('#confirmDelayBtn').off('click').on('click', function () {
+        var planDetailId = $('#delayPlanDetailId').val();
+        var newDate = $('#delayDate').val();
+        var newTime = $('#delayTime').val();
+
+        if (!newDate || !newTime || newDate === '' || newTime === '') {
+            alert('Please select both date and time.');
+            return;
+        }
+
+        $.ajax({
+            url: '/TLIPWarehouse/DelayPlan',
+            method: 'POST',
+            data: {
+                planDetailId: planDetailId,
+                newDate: newDate,
+                newTime: newTime
+            },
+            success: function (response) {
+                $('#delayModal').modal('hide');
+                alert(response.message || 'Delay recorded successfully.');
+                location.reload();
+            },
+            error: function (err) {
+                var errorMessage = 'Failed to delay the schedule.';
+                alert(errorMessage);
+            }
+        });
     });
 });
+
 
 //function delayHandler(id) {
 //    //Show? datetime picker??

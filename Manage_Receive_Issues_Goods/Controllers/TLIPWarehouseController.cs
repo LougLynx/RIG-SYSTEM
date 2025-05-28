@@ -38,6 +38,7 @@ namespace Manage_Receive_Issues_Goods.Controllers
             _logger = logger;
 			_rdtdService = rdtdService;
 			_context = context;
+            Console.WriteLine("TLIPWarehouseController initialized.");
         }
 
         //Lịch nhận
@@ -83,7 +84,6 @@ namespace Manage_Receive_Issues_Goods.Controllers
                 SupplierName = s.Supplier.SupplierName,
                 TripCount = s.TripCount
             }).ToList();
-
             return Json(result);
         }
 
@@ -944,20 +944,16 @@ namespace Manage_Receive_Issues_Goods.Controllers
 
             // Ngày/giờ cũ
             var oldDate = DateTime.Today.Add(planDetail.DeliveryTime.ToTimeSpan());
-
             // Parse ngày/tháng/năm
             if (!DateOnly.TryParseExact(newDate, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out var datePart))
                 return BadRequest("Sai định dạng ngày. Định dạng đúng: dd/MM/yyyy.");
-
             // Kiểm tra ngày hợp lệ (ví dụ: không được nhỏ hơn ngày hiện tại)
             var currentDate = DateOnly.FromDateTime(DateTime.Now);
             if (datePart < currentDate)
                 return BadRequest("Ngày mới không được nhỏ hơn ngày hiện tại.");
-
             // Parse giờ phút giây
             if (!TimeOnly.TryParseExact(newTime, "HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out var timePart))
                 return BadRequest("Sai định dạng giờ. Định dạng đúng: HH:mm:ss.");
-
             var newDateTime = datePart.ToDateTime(timePart);
 
             // Lưu vào bảng delay
