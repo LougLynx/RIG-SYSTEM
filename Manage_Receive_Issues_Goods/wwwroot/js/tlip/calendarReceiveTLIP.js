@@ -2221,6 +2221,7 @@
     });
     $(document).on('click', '[id^="delayButton-"]', function () {
         var planDetailId = this.id.replace('delayButton-', '');
+        console.log('Clicked delayButton, planDetailId:', planDetailId);
         if (!planDetailId || isNaN(planDetailId)) {
             alert('Invalid plan detail ID.');
             return;
@@ -2231,62 +2232,9 @@
     });
 
     $('#confirmDelayBtn').off('click').on('click', function () {
-        var planDetailId = $('#delayPlanDetailId').val();
-        var newDate = $('#delayDate').val();
-        var newTime = $('#delayTime').val();
-
-        if (!newDate || !newTime || newDate === '' || newTime === '') {
-            alert('Please select both date and time.');
-            return;
-        }
-
-        $.ajax({
-            url: '/TLIPWarehouse/DelayPlan',
-            method: 'POST',
-            data: {
-                planDetailId: planDetailId,
-                newDate: newDate,
-                newTime: newTime
-            },
-            success: function (response) {
-                $('#delayModal').modal('hide');
-                alert(response.message || 'Delay recorded successfully.');
-                location.reload();
-            },
-            error: function (err) {
-                var errorMessage = 'Failed to delay the schedule.';
-                alert(errorMessage);
-            }
-        });
+      
     });
+
 });
-
-
-//function delayHandler(id) {
-//    //Show? datetime picker??
-//    $('#' + id).modal("hide");
-//    //Fetch dữ liệu từ server để cập nhật lại lịch
-
-//    //Http post - Date time valid (truyền date time, hoặc datetime to string, tuỳ thuộc vào biến ở controller)
-//    //true
-//    //Listen API, reload, calendar.render();
-//    //false
-//    //toastr
-
-//    // Bootstrap 5.x
-//    if (window.bootstrap && bootstrap.Modal && typeof bootstrap.Modal.getInstance === "function") {
-//        var modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
-//        modalInstance.hide();
-//    }
-//    //// Bootstrap 4.x
-//    //else if (window.jQuery && typeof $(modalElement).modal === "function") {
-//    //    $(modalElement).modal("hide");
-//    //}
-//    //else {
-//    //    console.error("No supported Bootstrap modal API found.");
-//    //}
-//    }
-
-
 
 

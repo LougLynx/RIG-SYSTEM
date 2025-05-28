@@ -21,23 +21,23 @@ namespace Manage_Receive_Issues_Goods.Controllers
         private readonly IScheduleIssuedTLIPService _scheduleissuesService;
         private readonly IHubContext<UpdateIssueTLIPHub> _hubIssuedContext;
         private readonly ILogger<TLIPWarehouseController> _logger;
-		private readonly I_RDTDService _rdtdService;
+        private readonly I_RDTDService _rdtdService;
 
-		private readonly RigContext _context;
+        private readonly RigContext _context;
         public TLIPWarehouseController(
             ISchedulereceivedTLIPService schedulereceivedService,
             IScheduleIssuedTLIPService scheduleissuesService,
             IHubContext<UpdateIssueTLIPHub> hubIssuedContext,
             ILogger<TLIPWarehouseController> logger,
-			I_RDTDService rdtdService,
-			RigContext context)
+            I_RDTDService rdtdService,
+            RigContext context)
         {
             _schedulereceivedService = schedulereceivedService;
             _scheduleissuesService = scheduleissuesService;
             _hubIssuedContext = hubIssuedContext;
             _logger = logger;
-			_rdtdService = rdtdService;
-			_context = context;
+            _rdtdService = rdtdService;
+            _context = context;
             Console.WriteLine("TLIPWarehouseController initialized.");
         }
 
@@ -97,7 +97,7 @@ namespace Manage_Receive_Issues_Goods.Controllers
 
 
 
-// ////////////////////////////////////////////////////////////////////////////////////////// hàm test
+        // ////////////////////////////////////////////////////////////////////////////////////////// hàm test
         [HttpGet]
         public async Task<JsonResult> GetUnstoredActualReceived()
         {
@@ -133,7 +133,7 @@ namespace Manage_Receive_Issues_Goods.Controllers
             return Json(actualReceivedDTO);
         }
 
-        
+
         // ////////////////////////////////////////////////////////////////////////////////////////// hàm test
 
 
@@ -334,7 +334,7 @@ namespace Manage_Receive_Issues_Goods.Controllers
                 PlanDetailId = detail.PlanDetailId,
                 PlanTimeIssued = detail.PlanTimeIssued,
                 PlanTimeReceived = detail.PlanTimeReceived,
-				PlanDetailName = detail.PlanDetailName,
+                PlanDetailName = detail.PlanDetailName,
                 Actuals = detail.Actuals?.Where(actual => actual.ActualTime.Date == today).ToList()
             }).ToList();
 
@@ -524,7 +524,7 @@ namespace Manage_Receive_Issues_Goods.Controllers
                     d.PlanDetailName,
                     d.PlanTimeIssued,
                     d.PlanTimeReceived
-				})
+                })
                 .ToList();
 
             return Json(result);
@@ -616,7 +616,7 @@ namespace Manage_Receive_Issues_Goods.Controllers
         public async Task<JsonResult> GetCombinedLateDeliveryForChart(int planId, int month, string supplierCode = null)
         {
             var tripCountsActual = await _schedulereceivedService.GetTotalTripsActualForBarChartAsync(planId, month, supplierCode);
-            var lateDeliveries = await _schedulereceivedService.GetLateDeliveriesForChartAsync( month, planId , supplierCode);
+            var lateDeliveries = await _schedulereceivedService.GetLateDeliveriesForChartAsync(month, planId, supplierCode);
 
             var combinedLeadTimeCounts = tripCountsActual
                .Select(plan => new CombinedLateDeliveryTLIPDTO
@@ -632,7 +632,7 @@ namespace Manage_Receive_Issues_Goods.Controllers
         }
 
 
-        
+
 
 
         // Hiển thị danh sách các supplier 
@@ -935,41 +935,67 @@ namespace Manage_Receive_Issues_Goods.Controllers
         [HttpPost]
         public async Task<IActionResult> DelayPlan(int planDetailId, string newDate, string newTime)
         {
-            if (planDetailId <= 0 || string.IsNullOrEmpty(newDate) || string.IsNullOrEmpty(newTime))
-                return BadRequest("Invalid data.");
-
-            var planDetail = await _context.Plandetailreceivedtlips.FindAsync(planDetailId);
-            if (planDetail == null)
-                return BadRequest("Plan detail not found.");
-
-            // Ngày/giờ cũ
-            var oldDate = DateTime.Today.Add(planDetail.DeliveryTime.ToTimeSpan());
-            // Parse ngày/tháng/năm
-            if (!DateOnly.TryParseExact(newDate, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out var datePart))
-                return BadRequest("Sai định dạng ngày. Định dạng đúng: dd/MM/yyyy.");
-            // Kiểm tra ngày hợp lệ (ví dụ: không được nhỏ hơn ngày hiện tại)
-            var currentDate = DateOnly.FromDateTime(DateTime.Now);
-            if (datePart < currentDate)
-                return BadRequest("Ngày mới không được nhỏ hơn ngày hiện tại.");
-            // Parse giờ phút giây
-            if (!TimeOnly.TryParseExact(newTime, "HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out var timePart))
-                return BadRequest("Sai định dạng giờ. Định dạng đúng: HH:mm:ss.");
-            var newDateTime = datePart.ToDateTime(timePart);
-
-            // Lưu vào bảng delay
-            var delay = new DelayReceivedTLIP
+            try
             {
-                PlanDetailId = planDetailId,
-                OldDate = oldDate,
-                NewDate = newDateTime,
-            };
-            _context.DelayReceivedTLIPs.Add(delay);
+                if (planDetailId <= 0 || string.IsNullOrWhiteSpace(newDate) || string.IsNullOrWhiteSpace(newTime))
+                {
+                    _logger.LogWarning($"Invalid data: planDetailId={planDetailId}, newDate={newDate}, newTime={newTime}");
+                    return BadRequest("Dữ liệu không hợp lệ.");
+                }
 
-            // Cập nhật lại ngày/giờ mới cho plan detail
-            planDetail.DeliveryTime = TimeOnly.FromDateTime(newDateTime);
-            await _context.SaveChangesAsync();
+                // Validate date format dd/MM/yyyy
+                if (!DateOnly.TryParseExact(newDate, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out var datePart))
+                {
+                    _logger.LogWarning($"Invalid date format: newDate={newDate}");
+                    return BadRequest("Sai định dạng ngày. Định dạng đúng: dd/MM/yyyy.");
+                }
 
-            return Ok(new { success = true, message = "Delay recorded and plan updated." });
+                // Validate time format HH:mm:ss
+                if (!TimeOnly.TryParseExact(newTime, "HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out var timePart))
+                {
+                    _logger.LogWarning($"Invalid time format: newTime={newTime}");
+                    return BadRequest("Sai định dạng giờ. Định dạng đúng: HH:mm:ss.");
+                }
+
+                var planDetail = await _context.Plandetailreceivedtlips.FindAsync(planDetailId);
+                if (planDetail == null)
+                {
+                    _logger.LogWarning($"Plan detail not found for planDetailId={planDetailId}");
+                    return BadRequest("Không tìm thấy chi tiết kế hoạch.");
+                }
+
+                // Kiểm tra ngày mới không nhỏ hơn ngày hiện tại
+                var currentDate = DateOnly.FromDateTime(DateTime.Now);
+                if (datePart < currentDate)
+                {
+                    _logger.LogWarning($"New date is in the past: newDate={newDate}");
+                    return BadRequest("Ngày mới không được nhỏ hơn ngày hiện tại.");
+                }
+
+                // Lưu thông tin delay
+                var oldDate = DateTime.Today.Add(planDetail.DeliveryTime.ToTimeSpan());
+                var newDateTime = datePart.ToDateTime(timePart);
+
+                var delay = new DelayReceivedTLIP
+                {
+                    PlanDetailId = planDetailId,
+                    OldDate = oldDate,
+                    NewDate = newDateTime,
+                };
+                _context.DelayReceivedTLIPs.Add(delay);
+
+                // Cập nhật lại DeliveryTime cho planDetail
+                planDetail.DeliveryTime = timePart;
+                _context.Plandetailreceivedtlips.Update(planDetail);
+
+                await _context.SaveChangesAsync();
+                return Ok(new { success = true, message = "Delay recorded and plan updated." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in DelayPlan");
+                return BadRequest("Có lỗi xảy ra, không thể cập nhật.");
+            }
         }
     }
-}
+ }
