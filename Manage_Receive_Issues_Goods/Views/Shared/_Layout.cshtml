@@ -1,0 +1,118 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<IdentityUser> SignInManager
+
+@{
+    var isAdmin = User.IsInRole("Admin");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Existing links and scripts -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Manage_Receive_Issues_Goods.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/custom.css" asp-append-version="true" />
+    @* <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" /> *@
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+        
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.15/index.global.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="~/lib/framework/signalr/signalr.min.js"></script>
+
+    <script src="~/js/_layout.js" asp-append-version="true"></script>
+    @* <script src="~/js/realTime.js" asp-append-version="true"></script> *@
+
+    @await RenderSectionAsync("Scripts", required: false)
+    <link rel="stylesheet" href="~/css/layout.css">
+</head>
+<body onload="checkSidebarState(); highlightActiveLink();">   
+    <div id="mySidebar" class="sidebar">
+        <h1>
+            <b>
+                <a asp-controller="Home" asp-action="Index">
+                    <img src="~/images/densoLogo.png" alt="Denso Logo" />
+                </a>Manage RIG
+            </b>
+        </h1>
+
+        @if (SignInManager.IsSignedIn(User))
+        {
+
+            @* <img src="~/images/defaultAvatar.png" alt="Avatar" class="rounded-circle" style="width: 250px; height: 250px; margin-left: -16px;" /> *@
+
+            <h4 class="text-light text-center"><b>@(User?.Identity?.Name ?? "User")</b></h4>
+
+            <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+
+            <div class="dropdown">
+                <a class="nav-link text-light dropdown-toggle" href="#" id="dropdownMenuLink" aria-haspopup="true" aria-expanded="false">
+                    TLIP
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <a class="nav-link btn btn-dark" asp-area="" asp-controller="TLIPWarehouse" asp-action="ScheduleReceive">Received</a>
+                    <a class="nav-link btn btn-dark" asp-area="" asp-controller="TLIPWarehouse" asp-action="ScheduleIssued">Delivery</a>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <a class="nav-link text-light dropdown-toggle" href="#" id="dropdownMenuLink" aria-haspopup="true" aria-expanded="false">
+                    Denso
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <a class="nav-link btn btn-dark" asp-area="" asp-controller="DensoWarehouse" asp-action="ScheduleReceive">Received</a>
+                    <a class="nav-link btn btn-dark" asp-area="" asp-controller="DensoWarehouse" asp-action="ScheduleIssued">Delivery</a>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <a class="nav-link text-light dropdown-toggle" href="#" id="configDropdown" aria-haspopup="true" aria-expanded="false">
+                    Config
+                </a>
+                <div class="dropdown-menu" aria-labelledby="configDropdown">
+                    <a class="nav-link btn btn-dark" asp-area="" asp-controller="Role" asp-action="Create">Create role</a>
+                    <a class="nav-link btn btn-dark" asp-area="" asp-controller="Role" asp-action="Assign">Assign role</a>
+                </div>
+            </div>
+            <form method="post" asp-controller="Account" asp-action="Logout">
+                <button type="submit" style="width:100px; height: 30px;" class="nav-link btn btn-link py-0">
+                    Logout
+                </button>
+            </form>
+        }
+    </div>
+
+    <div id="main">
+        <button class="openbtn" onclick="toggleNav()">☰ </button>
+        @RenderBody()
+    </div>
+
+    <div id="loadingOverlay" style="display: none;">
+          @* <img src="~/images/skibidi11.gif" alt="Loading..." /> *@
+        @* <img src="~/images/loadingIcon.gif" alt="Loading..." /> *@
+        <img src="~/images/densoDance.gif" alt="Loading..." />
+    </div>
+    <footer class="footer text-center py-3">
+        <h5>
+            <span>Made by <i>Quang</i> | Maintain by <i>Duy Long</i></span>
+        </h5>
+    </footer>
+    <style>
+        .footer {
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+        }
+
+        body {
+            padding-bottom: 60px;
+        }
+    </style>
+</body>
+</html>

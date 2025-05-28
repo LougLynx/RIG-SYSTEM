@@ -1,0 +1,94 @@
+﻿@using Manage_Receive_Issues_Goods.DTO.RDTD_DTO
+@model IEnumerable<PlanDetailRDTD_DTO>
+
+@{
+	ViewData["Title"] = "RECEIVED Goods Schedule (Denso)";
+	var planDetailsJson = ViewData["PlanDetailsJson"];
+	var pastPlanDetailsJson = ViewData["PastPlanDetailsJson"];
+	var currentPlanEffectiveDate = ViewData["CurrentPlanEffectiveDate"];
+	var nextPlanEffectiveDate = ViewData["NextPlanEffectiveDate"];
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>@ViewData["Title"]</title>
+	<link rel="stylesheet" href="~/css/custom.css">
+</head>
+<body>
+	<div style="display: flex; gap: 10px;">
+		<a class="nav-link btn btn-dark" asp-area="" asp-controller="DensoWarehouse" asp-action="ChangePlanReceived">Plan</a>
+		<a class="nav-link btn btn-dark" asp-area="" asp-controller="RDTD" asp-action="DashboardRDTD">Dashboard</a>
+
+	</div>
+
+	<!-- Calendar -->
+	<div id='calendar'></div>
+
+	<!-- Modal detail -->
+	<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="eventModalLabel">Chi tiết lịch trình</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p id="eventDetails"></p>
+					<!-- Nút Confirm để xác nhận Actual -->
+					<button id="confirmButton" class="btn btn-primary" style="display: none;" onclick="confirmActual()">Confirm</button>
+					<!-- Nút Delete Actual -->
+					<button id="deleteButton" class="btn btn-danger" style="display: none;" onclick="confirmDelete()">Delete Actual</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Modal xác nhận thành công -->
+	<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-body text-center">
+					<i class="bi bi-check-circle-fill text-success" style="font-size: 48px;"></i>
+					<h5 class="mt-3">Chuyến hàng đã được xác nhận thành công!</h5>
+					<button type="button" class="btn btn-primary mt-3" data-bs-dismiss="modal">Đóng</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal Xác nhận xóa -->
+	<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="deleteConfirmModalLabel">Xác nhận xóa</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					Bạn có chắc chắn muốn xóa Actual này không?
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+					<button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+				</div>
+			</div>
+		</div>		
+	</div>
+
+
+	<script>						
+		var planDetails = @Html.Raw(planDetailsJson);
+		var currentPlanEffectiveDate = '@currentPlanEffectiveDate';
+		var nextPlanEffectiveDate = '@nextPlanEffectiveDate';
+		var pastPlanDetails = @Html.Raw(pastPlanDetailsJson);
+	</script>
+
+	<script src="~/js/denso/calendarReceiveDenso.js"></script>
+	@* <script src="~/dist/js/calendarReceiveDenso.bundle.js"></script> *@
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.2/signalr.min.js"></script>
+</body>
+</html>

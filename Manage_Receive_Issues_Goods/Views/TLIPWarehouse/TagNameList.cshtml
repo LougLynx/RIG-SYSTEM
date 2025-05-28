@@ -1,0 +1,256 @@
+﻿@using Manage_Receive_Issues_Goods.DTO.TLIPDTO.Received;
+@model IEnumerable<TagnamereceivetlipDTO>
+
+@{
+    ViewData["Title"] = "Tag Name List";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/css/custom.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script src="~/lib/framework/signalr/signalr.min.js"></script>
+    <link href='~/lib/framework/signalr/bootstrap.min.css'>
+    <script src='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js'></script>
+    <style>
+        body {
+            font-family: "Lato", sans-serif;
+            background-image: url('/images/white.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+        }
+
+        .tag-name-header {
+            background-color: #C7B44F;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1.2em;
+            text-align: center;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const select2Options = {
+                ajax: {
+                    url: '@Url.Action("GetAllSuppliers", "TLIPWarehouse")',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            searchTerm: params.term // search term
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data.map(item => ({
+                                id: item.supplierCode,
+                                text: `${item.supplierName} (${item.supplierCode})`
+                            }))
+                        };
+                    },
+                    cache: true
+                },
+                placeholder: 'Select a supplier',
+                minimumInputLength: 1,
+                templateResult: formatSupplier,
+                templateSelection: formatSupplierSelection
+            };
+
+            $('#newSupplierName').select2(select2Options);
+
+            function formatSupplier(supplier) {
+                if (supplier.loading) {
+                    return supplier.text;
+                }
+                const container = document.createElement('div');
+                container.classList.add('select2-result-supplier', 'clearfix');
+
+                const meta = document.createElement('div');
+                meta.classList.add('select2-result-supplier__meta');
+
+                const title = document.createElement('div');
+                title.classList.add('select2-result-supplier__title');
+                title.textContent = supplier.text;
+
+                const description = document.createElement('div');
+                description.classList.add('select2-result-supplier__description');
+                description.textContent = supplier.id;
+
+                meta.appendChild(title);
+                meta.appendChild(description);
+                container.appendChild(meta);
+
+                return container;
+            }
+
+            function formatSupplierSelection(supplier) {
+                return supplier.text || supplier.id;
+            }
+        });
+
+        async function addTagName() {
+            const tagName = document.getElementById('newTagName').value;
+            const supplierCode = document.getElementById('newSupplierName').value;
+            try {
+                const response = await fetch('@Url.Action("AddTagName", "TLIPWarehouse")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ TagName: tagName, SupplierCode: supplierCode })
+                });
+                const result = await response.text();
+                alert(result);
+                location.reload();
+            } catch (error) {
+                alert(error);
+            }
+        }
+
+        async function updateTagName(tagName) {
+            const newSupplierName = prompt(`Enter new supplier name for ${tagName}:`);
+            if (newSupplierName) {
+                try {
+                    const response = await fetch('@Url.Action("UpdateTagName", "TLIPWarehouse")', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ TagName: tagName, SupplierName: newSupplierName })
+                    });
+                    const result = await response.text();
+                    alert(result);
+                    location.reload();
+                } catch (error) {
+                    alert(error);
+                }
+            }
+        }
+
+        async function deleteTagName(tagName) {
+            if (confirm(`Are you sure you want to delete ${tagName}?`)) {
+                try {
+                    const response = await fetch(`@Url.Action("DeleteTagName", "TLIPWarehouse")?tagName=${tagName}`, {
+                        method: 'DELETE'
+                    });
+                    const result = await response.text();
+                    alert(result);
+                    location.reload();
+                } catch (error) {
+                    alert(error);
+                }
+            }
+        }
+
+        async function updateTagNameDetail(tagName, supplierCode) {
+            const newSupplierName = prompt(`Enter new supplier name for ${tagName} and ${supplierCode}:`);
+            if (newSupplierName) {
+                try {
+                    const response = await fetch('@Url.Action("UpdateTagNameDetail", "TLIPWarehouse")', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ TagName: tagName, SupplierCode: newSupplierName })
+                    });
+                    const result = await response.text();
+                    alert(result);
+                    location.reload();
+                } catch (error) {
+                    alert(error);
+                }
+            }
+        }
+
+        async function deleteTagNameDetail(tagName, supplierCode) {
+            if (confirm(`Are you sure you want to delete the detail for ${tagName} and ${supplierCode}?`)) {
+                try {
+                    const response = await fetch(`@Url.Action("DeleteTagNameDetail", "TLIPWarehouse")?tagName=${tagName}&supplierCode=${supplierCode}`, {
+                        method: 'DELETE'
+                    });
+                    const result = await response.text();
+                    alert(result);
+                    location.reload();
+                } catch (error) {
+                    alert(error);
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div style="display: flex; gap: 10px;">
+        <a class="nav-link btn btn-dark" asp-area="" asp-controller="TLIPWarehouse" asp-action="PlanList">Back</a>
+    </div>
+    <div class="container">
+        <h2 class="text-center">@ViewData["Title"]</h2>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="tag-name-header">
+                    Add New Tag Name
+                </div>
+                <form onsubmit="event.preventDefault(); addTagName();">
+                    <div class="form-group">
+                        <label for="newTagName">Tag Name:</label>
+                        <input type="text" class="form-control" id="newTagName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newSupplierName">Supplier Name:</label>
+                        <select class="form-control" id="newSupplierName" required></select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </form>
+            </div>
+        </div>
+
+        @foreach (var group in Model.GroupBy(t => t.TagName))
+
+        {
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="tag-name-header">
+                        @group.Key
+                        <button class="btn btn-warning btn-sm float-right" onclick="updateTagName('@group.Key')">Update</button>
+                        <button class="btn btn-danger btn-sm float-right mr-2" onclick="deleteTagName('@group.Key')">Delete</button>
+                    </div>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Supplier Code</th>
+                                <th>Supplier Name</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var tagName in group)
+
+                            {
+                                <tr>
+                                    <td>@tagName.SupplierCode</td>
+                                    <td>@tagName.SupplierName</td>
+                                    <td>
+                                        <button class="btn btn-warning btn-sm" onclick="updateTagNameDetail('@group.Key', '@tagName.SupplierCode')">Update</button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteTagNameDetail('@group.Key', '@tagName.SupplierCode')">Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</body>
+</html>

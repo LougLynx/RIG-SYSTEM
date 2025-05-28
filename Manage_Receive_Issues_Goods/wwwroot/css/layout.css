@@ -1,0 +1,221 @@
+﻿body {
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.3)), url('https://blog.dktcdn.net/files/kho-hang.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+}
+
+.sidebar {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    background: linear-gradient(135deg, #222, #000);
+    overflow-x: hidden;
+    transition: all 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+    padding-top: 60px;
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.5);
+}
+
+    .sidebar h1 {
+        margin-bottom: 30px;
+        font-weight: 700;
+        font-size: 1.8rem;
+        background: linear-gradient(45deg, #ff4081, #3f51b5);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-align: center;
+    }
+
+    .sidebar img {
+        width: 150px;
+        height: 30px;
+    }
+
+        .sidebar img:hover {
+            transform: scale(1.05);
+        }
+
+    .sidebar a {
+        padding: 12px 20px;
+        text-decoration: none;
+        font-size: 18px;
+        color: #bbb;
+        display: block;
+        transition: all 0.3s;
+        border-left: 4px solid transparent;
+        margin: 5px 0;
+    }
+
+        .sidebar a:hover, .sidebar a.active {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #ff4081;
+            transform: translateX(5px);
+        }
+
+    .sidebar .dropdown-toggle::after {
+        float: right;
+        margin-top: 10px;
+    }
+
+    .sidebar .dropdown-menu {
+        background: rgba(30, 30, 30, 0.95);
+        border: none;
+        border-radius: 0;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        padding: 0;
+    }
+
+        .sidebar .dropdown-menu a {
+            padding: 10px 15px 10px 35px;
+            font-size: 16px;
+        }
+
+        .sidebar .dropdown-menu.show {
+            display: block;
+            position: relative;
+            width: 100%;
+            margin-top: 0;
+            border-left: 4px solid #3f51b5;
+            animation: fadeIn 0.3s ease;
+        }
+
+    .sidebar form button {
+        margin: 20px auto;
+        display: block;
+        background: linear-gradient(45deg, #ff4081, #3f51b5);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+        .sidebar form button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+
+.openbtn {
+    font-size: 22px;
+    cursor: pointer;
+    background: linear-gradient(45deg, #3f51b5, #1a237e);
+    color: white;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 50%;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 999;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s;
+}
+
+    .openbtn:hover {
+        background: linear-gradient(45deg, #ff4081, #c51162);
+        transform: rotate(90deg);
+    }
+
+#main {
+    transition: margin-left 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+    padding: 20px;
+    margin-top: 60px;
+}
+
+    #main .container-fluid {
+        padding: 0 15px;
+    }
+
+    #main .content-wrapper {
+        min-height: calc(100vh - 180px);
+    }
+
+    #main .center-align {
+        font-weight: 700;
+        color: #fff;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        font-size: 2.5rem;
+    }
+
+.border-bottom {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+    #loadingOverlay img {
+        border-radius: 10px;
+        animation: pulse 1.5s infinite;
+    }
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 0;
+    }
+
+    #main {
+        margin-left: 0;
+    }
+
+        #main .center-align {
+            font-size: 1.8rem;
+        }
+
+    .openbtn {
+        top: 10px;
+        left: 10px;
+        padding: 8px 14px;
+    }
+}
+
+/* Adjust toggle button position based on sidebar state */
+body:has(.sidebar[style*="width: 250px"]) .openbtn {
+    left: 270px;
+}

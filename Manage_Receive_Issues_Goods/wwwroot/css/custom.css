@@ -1,0 +1,49 @@
+﻿/* custom.css */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.sidebar {
+    height: 100vh;
+    position: fixed;
+}
+
+.nav-link {
+    color: #fff !important;
+}
+
+    .nav-link:hover {
+        color: #ba1414 !important;
+    }
+
+.main-content {
+    margin-left: 250px; /* Adjust based on sidebar width */
+}
+
+.footer {
+    text-align: center;
+}
+
+.gray-background {
+    background-color: lightgray;
+}
+.white-background {
+    background-color: whitesmoke;
+}
+
+.fc-event-main .centered-event {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+
+.fc-timeline-header-row.fc-timeline-header-row-chrono {
+    width: 100%;
+}
+
+

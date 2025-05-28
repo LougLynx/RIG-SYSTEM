@@ -1,0 +1,154 @@
+﻿@{
+    ViewData["Title"] = "Dashboard RDTD";
+    var plans = ViewBag.Plans as IEnumerable<Manage_Receive_Issues_Goods.Models.Planrdtd>;
+    var drivers = ViewBag.Drivers as IEnumerable<Manage_Receive_Issues_Goods.Models.Aspnetuser>;
+    var currentPlanId = ViewBag.CurrentPlanId;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="~/lib/framework/select2/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/framework/font_awesome/all.min.css">
+    <script src="~/lib/framework/chartjs/chart.js"></script>
+    <script src="~/lib/framework/select2/select2.min.js"></script>
+    <link rel="stylesheet" href="~/css/dashboard.css">
+</head>
+<body>
+    <div style="display: flex; gap: 10px; padding: 20px;">
+        <button class="nav-link btn btn-dark" onclick="history.back()">Back</button>
+    </div>
+
+
+    <div class="container">
+
+        <!-- Dropdown plan-->
+        <div class="form-group">
+            <label for="planDropdown">Chọn kế hoạch:</label>
+            <select id="planDropdown" class="form-control">
+                @foreach (var plan in plans)
+                {
+                    <option value="@plan.PlanId" selected="@(plan.PlanId == currentPlanId ? "selected" : " ")">
+                        @plan.PlanName
+                    </option>
+                }
+            </select>
+        </div>
+        <div class="sticky-container">
+            <!-- Dropdown month bar trip-->
+            <div class="form-group">
+                <label for="monthTripDropdown">Chọn tháng:</label>
+                <select id="monthTripDropdown" class="form-control">
+                    <option value="1">Tháng 1</option>
+                    <option value="2">Tháng 2</option>
+                    <option value="3">Tháng 3</option>
+                    <option value="4">Tháng 4</option>
+                    <option value="5">Tháng 5</option>
+                    <option value="6">Tháng 6</option>
+                    <option value="7">Tháng 7</option>
+                    <option value="8">Tháng 8</option>
+                    <option value="9">Tháng 9</option>
+                    <option value="10">Tháng 10</option>
+                    <option value="11">Tháng 11</option>
+                    <option value="12">Tháng 12</option>
+                </select>
+            </div>
+            <!-- Dropdown driver -->
+            <div class="form-group">
+                <label for="driverDropdown">Chọn lái xe:</label>
+                <div style="display: flex; align-items: center;">
+                    <select id="driverDropdown" class="form-control">
+                        <option value="">Tất cả</option>
+                        @foreach (var driver in drivers)
+                        {
+                            <option value="@driver.Id"> @driver.UserName </option>
+                        }
+                    </select>
+                    <button id="searchDriverButton" class="btn btn-secondary" style="margin-left: 10px;">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+      
+
+        <div class="chart-container">
+            <!-- Legend hanlde time-->
+            <div id="legend" class="sticky-legend" style="margin-top: 20px; text-align: center;">
+                <div><h4><strong><i>Thời gian giao hàng của từng lái xe:</i></strong></h4></div>
+                <ul style="list-style: none; padding: 0; display: inline-flex; gap: 20px;">
+                    <li><span style="display: inline-block; width: 20px; height: 20px; background-color: #41B8D5; margin-right: 10px;"></span><i>Nhanh nhất</i></li>
+                    <li><span style="display: inline-block; width: 20px; height: 20px; background-color: #FFBD59; margin-right: 10px;"></span><i>Trung bình</i></li>
+                    <li><span style="display: inline-block; width: 20px; height: 20px; background-color: #FF3131; margin-right: 10px;"></span><i>Lâu nhất</i></li>
+                </ul>
+            </div>
+
+            <!-- ChartDeliveryTimeUser -->
+            <div class="container-body">
+                <div style="display: flex;">
+                    <!--Chart phụ-->
+                    <div class="y-axis-container">
+                        <canvas id="barChartDeliveryTimeUserYAxis"></canvas>
+                    </div>
+
+                    <div class="main-chart-container">
+                        <div class="box">
+                            <canvas id="barChartDeliveryTimeUser"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- Dropdown plan detail-->
+        <div class="form-group">
+            <label for="plandetailDropdown">Chọn chuyến:</label>
+            <select id="plandetailDropdown" class="form-control">
+                <option value="">Chọn chuyến</option>
+            </select>
+        </div>
+
+
+        <div class="chart-container">
+            <!-- Legend hanlde time-->
+            <div id="legend" class="sticky-legend" style="margin-top: 20px; text-align: center;">
+                <div><h4><strong><i>Thời gian giao hàng của chuyến:</i></strong></h4></div>
+                <ul style="list-style: none; padding: 0; display: inline-flex; gap: 20px;">
+                    <li><span style="display: inline-block; width: 20px; height: 20px; background-color: #41B8D5; margin-right: 10px;"></span><i>Nhanh nhất</i></li>
+                    <li><span style="display: inline-block; width: 20px; height: 20px; background-color: #FFBD59; margin-right: 10px;"></span><i>Trung bình</i></li>
+                    <li><span style="display: inline-block; width: 20px; height: 20px; background-color: #FF3131; margin-right: 10px;"></span><i>Lâu nhất</i></li>
+                </ul>
+            </div>
+
+
+            <!-- barChartHandleTime by Trip -->
+            <div class="container-body">
+                <div style="display: flex;">
+                    <!--Chart phụ-->
+                    <div class="y-axis-container">
+                        <canvas id="barChartDeliveryTimeTripYAxis"></canvas>
+                    </div>
+
+                    <div class="main-chart-container">
+                        <div class="box">
+                            <canvas id="barChartDeliveryTimeTrip"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+     
+    </div>
+
+
+    @section Scripts {
+        <script src="~/js/rdtd/dashboardRDTD.js"></script>
+    }
+</body>
+</html>

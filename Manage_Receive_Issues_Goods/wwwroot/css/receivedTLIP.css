@@ -1,0 +1,219 @@
+﻿.marquee {
+    width: 100%;
+    height: 150px; /* Chiều cao của marquee */
+    overflow: hidden; /* Ngăn nội dung tràn ra */
+    position: relative; /* Để dùng vị trí tương đối */
+    display: flex;
+    align-items: center; /* Căn giữa dọc */
+}
+
+.marquee-content {
+    display: flex;
+    gap: 20px; /* Khoảng cách giữa các block */
+    position: absolute; /* Để thực hiện animation */
+    will-change: transform; /* Tăng hiệu năng animation */
+}
+
+    .marquee-content > div {
+        display: inline-block; /* Đảm bảo mỗi block là một khối */
+        margin-right: 20px; /* Khoảng cách giữa các block */
+        flex-shrink: 0; /* Ngăn nội dung bị co lại */
+    }
+
+.supplier-block {
+    background-color: #f0f0f0;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center; /* Căn ngang nội dung */
+    align-items: center; /* Căn dọc nội dung */
+    height: 120px; /* Chiều cao block */
+    width: 200px; /* Chiều rộng cố định */
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center; /* Căn giữa văn bản */
+    color: #333;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+    overflow: hidden; /* Đảm bảo nội dung không tràn */
+    word-wrap: break-word; /* Bắt đầu xuống dòng nếu nội dung dài */
+    white-space: normal; /* Cho phép xuống dòng */
+}
+
+.event-tooltip {
+    position: absolute;
+    background-color: #1E2B37;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    z-index: 1000;
+    pointer-events: none; /* Đảm bảo tooltip không chặn các sự kiện chuột */
+}
+
+.legend-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Dạng lưới tự điều chỉnh theo màn hình */
+    gap: 20px; /* Khoảng cách giữa các mục */
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: #f8f9fa; /* Màu nền nhạt */
+    border: 1px solid #ddd;
+    border-radius: 10px; /* Bo tròn góc */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px; /* Cỡ chữ */
+    font-weight: 500; /* Tăng độ đậm chữ */
+    color: #333; /* Màu chữ */
+}
+
+.legend-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%; /* Làm tròn thành hình tròn */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Đổ bóng cho biểu tượng */
+}
+
+.legend-text {
+    white-space: nowrap; /* Giữ văn bản trên một dòng */
+    text-align: left;
+}
+
+
+/* Custom Background for the calendar */
+.fc .fc-view-harness {
+    background-color: #f9f9f9; /* Nền lịch sáng nhẹ */
+    border-radius: 10px; /* Bo góc cho lịch */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+}
+
+/* Header Toolbar */
+.fc-toolbar {
+    background-color: #1E2B37;
+    padding: 10px;
+    border-radius: 10px;
+    color: white;
+}
+
+.fc-toolbar-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+}
+
+.fc-button {
+    background-color: #3E7D3E;
+    color: white;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+    .fc-button:hover {
+        background-color: #2D5A2D;
+        color: #ffffff;
+    }
+
+/* Time Slots */
+.fc .fc-timeline-slots {
+}
+
+    .fc .fc-timeline-slots tr {
+        border-top: 1px solid #ddd;
+    }
+
+.fc .fc-timeline-header {
+    background-color: #f8f9fa; /* Màu nền header */
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+}
+
+/* Event Styling */
+.fc-event {
+    border-radius: 5px; /* Bo tròn sự kiện */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Đổ bóng */
+    font-size: 14px; /* Kích thước chữ sự kiện */
+    font-weight: bold;
+    text-align: center;
+}
+
+    .fc-event:hover {
+        transform: scale(1.05); /* Hiệu ứng phóng to nhẹ khi hover */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+/* Now Indicator */
+.fc-now-indicator-line {
+    border-top: 2px dashed #FF0000; /* Đường đỏ chỉ thời gian hiện tại */
+}
+
+.fc-now-indicator-arrow {
+    border-top-color: #FF0000; /* Màu mũi tên thời gian hiện tại */
+}
+/* Phần tiêu đề tài nguyên */
+.fc-datagrid-cell-main {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333; /* Màu chữ */
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-bottom: 1px solid #ddd; /* Đường kẻ ngang */
+}
+
+    .fc-datagrid-cell-main i {
+        margin-right: 10px; /* Khoảng cách giữa icon và text */
+    }
+
+/* Nền của các tài nguyên */
+.fc-resource-area .fc-resource {
+    background-color: #f9f9f9; /* Nền sáng nhẹ */
+    border-radius: 5px; /* Bo góc */
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+}
+
+    .fc-resource-area .fc-resource:hover {
+        background-color: #e6f7ff; /* Hiệu ứng hover */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Đổ bóng khi hover */
+    }
+/* Sự kiện */
+.custom-event-content {
+    background-color: #3E7D3E; /* Màu nền mặc định */
+    padding: 10px;
+    border-radius: 5px; /* Bo tròn sự kiện */
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Đổ bóng nhẹ */
+    transition: all 0.3s ease; /* Hiệu ứng chuyển đổi */
+}
+
+    .custom-event-content:hover {
+        transform: scale(1.05); /* Phóng to nhẹ khi hover */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Tăng đổ bóng khi hover */
+    }
+
+    /* Phần trăm hoàn thành */
+    .custom-event-content div {
+        margin-top: 5px;
+        font-size: 12px;
+        color: #ffffff;
+    }
+
+    /* Nếu hoàn thành 100%, thay đổi màu nền */
+    .custom-event-content[style*="background-color: #0091F7"] {
+        background-color: #3E7D3E; /* Màu xanh lá khi hoàn thành */
+    }

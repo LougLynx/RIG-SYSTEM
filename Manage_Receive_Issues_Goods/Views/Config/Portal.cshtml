@@ -1,0 +1,60 @@
+﻿@{
+    ViewData["Title"] = "Config Portal";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: "Lato", sans-serif;
+            background-image: url('/images/black.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+        }
+
+        .btn-game {
+            margin: 10px;
+            padding: 20px 40px;
+            font-size: 20px;
+            border: none;
+            border-radius: 10px;
+            background-color: #FF0000;
+            color: white;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+            .btn-game:hover {
+                background-color: #cc0000;
+                transform: scale(1.1);
+            }
+
+            .btn-game:active {
+                background-color: #990000;
+                transform: scale(1.05);
+            }
+    </style>
+</head>
+
+<body>
+    <div class="container text-center">
+        <a class="btn btn-primary btn-game" asp-area="" asp-controller="Role" asp-action="Create">Add New Role</a>
+        <a class="btn btn-primary btn-game" asp-area="" asp-controller="Role" asp-action="Assign">Assign Role</a>
+    </div>
+</body>
+
+</html>

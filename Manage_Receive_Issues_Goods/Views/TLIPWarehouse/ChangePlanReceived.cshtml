@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>Change Plan</title>
+	<link href="~/lib/framework/bootstrap/bootstrap.min.css">
+	<script src="~/lib/framework/bootstrap/bootstrap.bundle.min.js"></script>
+	<script src="~/lib/framework/jquery/jquery.min.js"></script>
+	<script src="~/lib/framework/xlsx/xlsx.full.min.js"></script>
+	<script src="~/lib/framework/jszip/jszip.min.js"></script>
+	<script src="~/lib/framework/pptxgen/pptxgen.min.js"></script>
+	<script src="~/lib/framework/html2/html2canvas.min.js"></script>
+	<link href="~/lib/framework/bootstrap/bootstrap-datepicker.min.css" rel="stylesheet" />
+	<script src="~/lib/framework/bootstrap/bootstrap-datepicker.min.js"></script>
+</head>
+<body>
+	<a class="nav-link btn btn-dark" asp-area="" asp-controller="TLIPWarehouse" asp-action="PLanList">Back</a>
+
+	<div id="main-container">
+		<div id='external-events'>
+			<p>
+				<strong>Danh sách Nhà Cung Cấp</strong>
+				<i><p style="color: blue">Vui lòng search để hiện Nhà Cung Cấp!!!</p></i>
+			</p>
+			<p>
+				<input type="text" id="search-supplier" class="form-control" placeholder="Search by Supplier Name or Code">
+			</p>
+			<div id="supplier-list" style="display: none;">
+				@foreach (var supplier in Model)
+				{
+					<div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event' data-supplier="@supplier.SupplierName @supplier.SupplierCode">
+						<div class='fc-event-main'>@supplier.SupplierName (@supplier.SupplierCode)</div>
+					</div>
+				}
+			</div>
+			@*<p>
+            <input type='checkbox' id='drop-remove' />
+            <label for='drop-remove'>remove after drop</label>
+            </p> *@
+
+
+			<p>
+				<label for='color-picker'>Chọn màu:</label>
+				<select id='color-picker' class="form-control">
+					<option value='#C2B742' style="background-color: #C2B742;">Ca 1</option>
+					<option value='#FF9F89' style="background-color: #FF9F89;">Ca 2</option>
+					<option value='#9CBF69' style="background-color: #9CBF69;">Ca 3</option>
+				</select>
+			</p>
+			<p>
+				<label for='plan-name'><strong>Tên kế hoạch:</strong></label>
+				<input type="text" id="plan-name" class="form-control" placeholder="Nhập tên kế hoạch">
+			</p>
+
+		</div>
+
+		<div id='calendar-container'>
+			<div id='calendar'></div>
+		</div>
+	</div>
+
+	<div id='button-export' style="margin-top: 100px">
+		<div>
+			<button id="export-excel" class="btn btn-primary">Export to Excel</button>
+			<button id="export-ppt" class="btn btn-secondary">Export to PowerPoint</button>
+			<a href="~/assets/Form_input.xlsx" download class="btn btn-info">
+				Tải form Excel mẫu
+			</a>
+			<input type="file" id="input-excel" accept=".xlsx, .xls" class="form-control" style="width:20%">
+			<button id="submit-plan" class="btn btn-success">Submit</button>
+		</div>
+	</div>
+
+
+
+	<!-- Modal Submit kế hoạch -->
+	<div class="modal fade" id="dateModal" tabindex="-1" role="dialog" aria-labelledby="dateModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="dateModalLabel">Chọn ngày áp dụng kế hoạch</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<h5>Kế hoạch <span id="modal-plan-name"></span> bắt đầu từ:</h5>
+					<input type="text" id="datepicker" class="form-control" placeholder="dd-MM-YYYY">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" id="save-date">Save changes</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@section Scripts {
+
+		<script src="~/js/tlip/changePlanReceived.js"></script>
+		<script>
+			$(document).ready(function () {
+				$('#submit-plan').on('click', function () {
+					var planName = $('#plan-name').val();
+					$('#modal-plan-name').text(planName ? planName : 'Chưa nhập tên');
+					$('#dateModal').modal('show');
+				});
+				$('#search-supplier').on('keyup', function () {
+					var value = $(this).val().toLowerCase();
+					if (value) {
+						$('#supplier-list').show();
+						$('#supplier-list .fc-event').filter(function () {
+							$(this).toggle($(this).attr('data-supplier').toLowerCase().indexOf(value) > -1)
+						});
+					} else {
+						$('#supplier-list').hide();
+					}
+				});
+
+				$(document).on('click', function (event) {
+					if (!$(event.target).closest('#color-picker').length && !$(event.target).is('#color-picker')) {
+						$('#color-picker').blur();
+					}
+				});
+
+				// Initialize datepicker
+				$('#datepicker').datepicker({
+					format: 'dd-mm-yyyy',
+					autoclose: true
+				});
+			});
+		</script>
+	}
+</body>
+</html>

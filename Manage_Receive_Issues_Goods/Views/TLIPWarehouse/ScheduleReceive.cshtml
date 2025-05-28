@@ -1,0 +1,301 @@
+﻿@{
+    ViewData["Title"] = "RECEIVED Goods Schedule (TLIP)";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/css/custom.css">
+    <link rel="stylesheet" href="~/css/receivedTLIP.css">
+    <script src="~/lib/framework/signalr/signalr.min.js"></script>
+    <link href='~/lib/framework/signalr/bootstrap.min.css'>
+    <script src='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+</head>
+<body>
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <i class="fas fa-cog" id="toggleButtons" style="cursor: pointer; font-size: 24px;"></i>
+        <div id="buttonContainer" style="display: none;">
+            <a class="nav-link btn btn-dark" asp-area="" asp-controller="TLIPWarehouse" asp-action="SupplierList">Supplier List</a>
+            <a class="nav-link btn btn-dark" asp-area="" asp-controller="TLIPWarehouse" asp-action="PLanList">Plan List</a>
+            <a class="nav-link btn btn-dark" asp-area="" asp-controller="TLIPWarehouse" asp-action="DashboardTLIP">Dashboard</a>
+        </div>
+    </div>
+    <div style="text-align: center; background-color: #f9f9f9; padding: 10px; border: 1px solid #ddd;">
+        Để có trải nghiệm tốt hơn, hãy thu nhỏ trình duyệt về tỷ lệ 67% bằng tổ hợp phím <strong>Ctrl + (-)</strong> hoặc <strong>Ctrl + (lăn chuột về sau)</strong>.
+    </div>
+    <h1 class="center-align" style="font-style: italic;"><span id="currentTime"></span></h1>
+    <!-- Suppliers List -->
+    <div id="suppliersList">
+        <h3><strong><i>Suppliers for Today</i></strong></h3>
+
+        <div class="marquee">
+            <div class="marquee-content" id="suppliersListContent">
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div id="legend" style="margin-top: 20px; text-align: center;">
+        <div class="legend-container">
+            <div class="legend-item">
+                <span class="legend-icon" style="background-color: #C7B44F;"></span>
+                <span class="legend-text">Đang xử lý</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon" style="background-color: green;"></span>
+                <span class="legend-text">Đã xử lý xong</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon" style="background-color: #9570AF;"></span>
+                <span class="legend-text">Đang đưa lên rack</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon" style="background-color: #0091F7;"></span>
+                <span class="legend-text">Đã hoàn thành lên rack</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon" style="background-color: red;"></span>
+                <span class="legend-text">Bị lỗi (Đang sửa)</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon" style="background-color: #F0F0F0; border: 1px solid #ccc;"></span>
+                <span class="legend-text">Chưa có chuyến nào về</span>
+            </div>
+        </div>
+    </div>
+
+
+    <h1 class="center-align" style="font-style: italic;"><span id="currentTime"></span></h1>
+
+    <!-- Calendar -->
+    <div id='calendar'></div>
+
+    <!-- Modal -->
+    <div id="modalsContainer"></div>
+    <!-- Delay Modal -->
+    <div class="modal fade" id="delayModal" tabindex="-1" aria-labelledby="delayModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="delayModalLabel">Delay Schedule</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="delayForm" asp-controller="TLIPWarehouse" asp-action="DelayPlan">
+                        <div class="mb-3">
+                            <label for="delayDate" class="form-label">Select new date (DD/MM/YYYY)</label>
+                            <input type="text" class="form-control" id="delayDate" placeholder="DD/MM/YYYY" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="delayTime" class="form-label">Select new time</label>
+                            <input type="time" class="form-control" id="delayTime" required>
+                        </div>
+                        <input type="hidden" id="delayPlanDetailId">
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmDelayBtn">Confirm</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    @section Scripts {
+        <script src="~/js/tlip/calendarReceiveTLIP.js"></script>
+
+
+        @*
+    Do hai function này không nhận ở bên js nên phải viết thẳng vào trong file cshtml
+    (hãy dùng ctr + F để tìm hai hàm này được sử dụng ở đâu bên js)
+    *@
+        <script>
+            
+            function showActualModalInResource(supplierCode) {
+                $.getJSON('@Url.Action("GetActualReceivedBySupplier", "TLIPWarehouse")', { supplierCode: supplierCode }, function (response) {
+                    var data = response.data;
+                    // Xóa modal cũ nếu tồn tại
+                    var existingModal = document.getElementById('actualModal');
+                    if (existingModal) {
+                        existingModal.remove();
+                    }
+
+                    if (data && data.length > 0) {
+                        var tableRows = data.map(actual => `
+                                        <tr>
+                                            <td>${actual.AsnNumber}</td>
+                                            <td>${actual.DoNumber}</td>
+                                            <td>${actual.Invoice}</td>
+                                            <td>${new Date(actual.ActualDeliveryTime).toLocaleString('vi-VN', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        })}</td>
+                                        </tr>
+                                    `).join('');
+
+                        var modalContent = `
+                                    <div class="modal fade" id="actualModal" tabindex="-1" aria-labelledby="actualModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="actualModalLabel">Chi tiết thực tế của ${supplierCode}</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <table class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>ASN Number</th>
+                                                                <th>DO Number</th>
+                                                                <th>Invoice</th>
+                                                                <th>Nhận lúc</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            ${tableRows}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    `;
+                        document.body.insertAdjacentHTML('beforeend', modalContent);
+                        $('#actualModal').modal('show');
+                    } else {
+                        console.error('No data received for supplier:', supplierCode);
+                        var modalContent = `
+                                    <div class="modal fade" id="actualModal" tabindex="-1" aria-labelledby="actualModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="actualModalLabel">Chi tiết thực tế của ${supplierCode}</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <table class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>ASN Number</th>
+                                                                <th>DO Number</th>
+                                                                <th>Invoice</th>
+                                                                <th>Nhận lúc</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    `;
+                        document.body.insertAdjacentHTML('beforeend', modalContent);
+                        $('#actualModal').modal('show');
+                    }
+                }).fail(function (error) {
+                    console.error('Error fetching actual received data:', error);
+                });
+            }
+
+
+
+
+
+
+
+
+
+            function showPlanDetailModalInResource(supplierCode) {
+                $.getJSON('@Url.Action("GetPlanDetailsBySupplierCode", "TLIPWarehouse")', { supplierCode: supplierCode }, function (response) {
+                    console.log("Plan detail: ", response);
+                    var data = response;
+                    var existingModal = document.getElementById('planDetailModal');
+                    if (existingModal) {
+                        existingModal.remove();
+                    }
+
+                    if (data && data.length > 0) {
+                        var tableRows = data.map((plandetail, index) => `
+                                        <tr>
+                                            <td>Chuyến ${index + 1}</td>
+                                             <td>${plandetail.DeliveryTime}</td>
+                                        </tr>
+                                    `).join('');
+
+                        var modalContent = `
+                                    <div class="modal fade" id="planDetailModal" tabindex="-1" aria-labelledby="planDetailModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="planDetailModalLabel">Chi tiết kế hoạch của ${supplierCode}</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <table class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Chuyến</th>
+                                                                <th>Delivery Time</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            ${tableRows}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    `;
+                        document.body.insertAdjacentHTML('beforeend', modalContent);
+                        $('#planDetailModal').modal('show');
+                    } else {
+                        console.error('No data received for supplier:', supplierCode);
+                        var modalContent = `
+                                    <div class="modal fade" id="planDetailModal" tabindex="-1" aria-labelledby="planDetailModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="planDetailModalLabel">Chi tiết kế hoạch của ${supplierCode}</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <table class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Chuyến</th>
+                                                                <th>Delivery Time</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    `;
+                        document.body.insertAdjacentHTML('beforeend', modalContent);
+                        $('#planDetailModal').modal('show');
+                    }
+                }).fail(function (error) {
+                    console.error('Error fetching plan details:', error);
+                });
+            }
+
+
+
+        </script>
+
+
+
+    }
+</body>
+</html>

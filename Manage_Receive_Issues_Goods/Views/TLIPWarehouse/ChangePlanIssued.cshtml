@@ -1,0 +1,191 @@
+﻿@model IEnumerable<Manage_Receive_Issues_Goods.Models.Planrdtddetail>
+
+@{
+    ViewData["Title"] = "Change Plan";
+    var filteredModel = Model;
+    var totalShipment = filteredModel.FirstOrDefault()?.Plan.TotalShipment ?? 0;
+    var effectiveDate = filteredModel.FirstOrDefault()?.Plan.EffectiveDate.ToString("dd/MM/yyyy") ?? "N/A";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] </title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.min.css" />
+    <style>
+        .custom-table {
+            background-color: #FDFDFD;
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex; gap: 10px;">
+        <a class="nav-link btn btn-dark" asp-area="" asp-controller="TLIPWarehouse" asp-action="ScheduleIssued">Back</a>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#changePlanModal">Change Plan</button>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#viewPlanFutureModal">View Plan Future</button>
+
+    </div>
+    <h1>Total Shipment: @totalShipment</h1>
+    <h2>Effective Date: @effectiveDate</h2>
+    <table class="table custom-table">
+        <thead>
+            <tr>
+                <th>Plan Detail Name</th>
+                <th>Plan Time</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var detail in filteredModel)
+            {
+                <tr>
+                    <td>@detail.PlanDetailName</td>
+                    <td>@(detail.PlanTimeIssued.HasValue ? detail.PlanTimeIssued.Value.ToString("HH:mm:ss") : "Please fill the time")</td>
+
+                    <td>
+                        <button type="button" class="btn btn-warning edit-btn" data-detail-id="@detail.PlanDetailId" data-detail-time="@detail.PlanTimeIssued" data-toggle="modal" data-target="#editPlanTimeModal">Edit</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Change Plan Modal -->
+    <div class="modal fade" id="changePlanModal" tabindex="-1" role="dialog" aria-labelledby="changePlanModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changePlanModalLabel">Change Plan</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="changePlanForm" method="post">
+                        <div class="form-group">
+                            <label for="planName">Plan Name</label>
+                            <input type="text" class="form-control" id="planName" name="planName" value="Receive Shipment" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="totalShipment">Total Shipment</label>
+                            <input type="number" class="form-control" id="totalShipment" name="totalShipment" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="effectiveDate">Effective Date</label>
+                            <input type="date" class="form-control" id="effectiveDate" name="effectiveDate" required />
+                        </div>
+
+                        <!-- Dynamic Plan Details Section -->
+                        <div id="planDetailsSection"></div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary save-plan-btn">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  View Plan Future Modal -->
+    <div class="modal fade" id="viewPlanFutureModal" tabindex="-1" role="dialog" aria-labelledby="viewPlanFutureModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewPlanFutureModalLabel">Future Plans</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Plan Name</th>
+                                <th>Effective Date</th>
+                                <th>Total Shipment</th>
+                            </tr>
+                        </thead>
+                        <tbody id="futurePlansTableBody">
+                            <!-- Future plans will be populated here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plan Details Modal -->
+    <div class="modal fade" id="planDetailsModal" tabindex="-1" role="dialog" aria-labelledby="planDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="planDetailsModalLabel">Plan Details</h5>
+
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Plan Detail Name</th>
+                                <th>Plan Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="planDetailsTableBody">
+                            <!-- Plan details will be populated here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Plan Time Modal -->
+    <div class="modal fade" id="editPlanTimeModal" tabindex="-1" role="dialog" aria-labelledby="editPlanTimeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPlanTimeModalLabel">Edit Plan Time</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editPlanTimeForm" method="post" asp-action="UpdatePlanTimeIssued">
+                        <input type="hidden" id="detailId" name="detailId" />
+                        <div class="form-group">
+                            <label for="editPlanTime">Plan Time</label>
+                            <input type="text" class="form-control timepicker" id="editPlanTime" name="planTime" required />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary save-time-btn">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"></script>
+    <script src="~/js/tlip/changePlanIssued.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var today = new Date().toISOString().split('T')[0];
+            document.getElementById('effectiveDate').setAttribute('min', today);
+        });
+    </script>
+
+
+</body>
+</html>

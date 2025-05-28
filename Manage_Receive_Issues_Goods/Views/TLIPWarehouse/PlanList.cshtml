@@ -1,0 +1,130 @@
+﻿
+@using Manage_Receive_Issues_Goods.DTO.TLIPDTO.Received;
+
+@model List<PlanDetailReceivedTLIPDTO>
+@{
+    var allSupplier = ViewData["AllSuppliers"] as List<Manage_Receive_Issues_Goods.Models.Supplier>;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Plan List</title>
+    <link href="~/lib/framework/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/lib/framework/select2/select2.min.css" rel="stylesheet" />
+    <script src="~/lib/framework/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/framework/select2/select2.min.js"></script>
+    <script src="~/lib/framework/jquery/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div style="display: flex; gap: 10px;">
+        <a class="nav-link btn btn-dark" asp-area="" asp-controller="TLIPWarehouse" asp-action="ScheduleReceive">Back</a>
+        <a class="nav-link btn btn-primary" asp-area="" asp-controller="TLIPWarehouse" asp-action="ChangePlanReceived">Change Plan</a>
+        <a class="nav-link btn btn-primary" asp-area="" asp-controller="TLIPWarehouse" asp-action="TagNameList">Group TagName</a>
+    </div>
+    <div class="container">
+        <h1 class="my-4">Plan List</h1>
+
+        <div class="mb-4">
+            <label for="weekdaySelect" class="form-label">Chọn thứ trong tuần:</label>
+            <select id="weekdaySelect" class="form-select" onchange="filterPlans()">
+                <option value="0">Tất cả</option>
+                <option value="1">Thứ 2</option>
+                <option value="2">Thứ 3</option>
+                <option value="3">Thứ 4</option>
+                <option value="4">Thứ 5</option>
+                <option value="5">Thứ 6</option>
+                <option value="6">Thứ 7</option>
+                <option value="7">Chủ nhật</option>
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <label for="supplierSelect" class="form-label">Chọn nhà cung cấp:</label>
+            <select id="supplierSelect" class="form-select" onchange="filterPlans()">
+                <option value="0">Tất cả</option>
+                @foreach (var supplier in allSupplier)
+
+                {
+                    <option value="@supplier.SupplierCode">@supplier.SupplierName (@supplier.SupplierCode)</option>
+                }
+            </select>
+        </div>
+
+        @for (int i = 1; i <= 7; i++)
+
+        {
+
+            var weekdayPlans = Model.Where(plan => plan.WeekdayId == i).ToList();
+
+
+
+            if (weekdayPlans.Any())
+
+            {
+                <div class="card mb-4 weekday-card" data-weekday="@i">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">@GetWeekdayName(i)</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Supplier Code</th>
+                                    <th>Supplier Name</th>
+                                    <th>Delivery Time</th>
+                                    <th>Lead Time</th>
+                                    <th>Plan Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var plan in weekdayPlans)
+
+                                {
+                                    <tr class="plan-row" data-supplier="@plan.SupplierCode" data-supplier-name="@plan.SupplierName">
+                                        <td>@plan.SupplierCode</td>
+                                        <td>@plan.SupplierName</td>
+                                        <td>@plan.DeliveryTime</td>
+                                        <td>@plan.LeadTime.ToString("HH:mm")</td>
+                                        <td>@plan.PlanType</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+        }
+
+        @functions {
+            private string GetWeekdayName(int weekdayId)
+            {
+
+                return weekdayId switch
+
+                {
+
+                    1 => "Thứ 2",
+
+                    2 => "Thứ 3",
+
+                    3 => "Thứ 4",
+
+                    4 => "Thứ 5",
+
+                    5 => "Thứ 6",
+
+                    6 => "Thứ 7",
+
+                    7 => "Chủ nhật",
+
+                    _ => "Unknown"
+
+                };
+            }
+        }
+    </div>
+
+    <script src="~/js/tlip/planList.js"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+﻿@{
+    var users = ViewBag.Users as List<Microsoft.AspNetCore.Identity.IdentityUser>;
+    var roles = ViewBag.Roles as List<Microsoft.AspNetCore.Identity.IdentityRole>;
+    var userRoles = ViewBag.UserRoles as Dictionary<string, IList<string>>;
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">Assign Role</h2>
+        </div>
+        <div class="card-body">
+            <form asp-action="Assign" method="post" class="mb-4">
+                <div class="form-group">
+                    <label for="userName" class="font-weight-bold">User Name</label>
+                    <select class="form-control form-control-lg" id="userName" name="userName" required>
+                        <option value="">Select User</option>
+                        @foreach (var user in users)
+                        {
+                            <option value="@user.UserName">@user.UserName</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="roleName" class="font-weight-bold">Role Name</label>
+                    <select class="form-control form-control-lg" id="roleName" name="roleName" required>
+                        <option value="">Select Role</option>
+                        @foreach (var role in roles)
+                        {
+                            <option value="@role.Name">@role.Name</option>
+                        }
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-user-plus mr-2"></i>Assign Role
+                </button>
+            </form>
+
+            @if (ViewBag.Message != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle mr-2"></i>@ViewBag.Message
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-info">
+            <h3 class="mb-0">Existing Users and Roles</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th class="bg-dark text-white">User Name</th>
+                            <th class="bg-dark text-white">Roles</th>
+                            <th class="bg-dark text-white">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in users)
+                        {
+                            <tr>
+                                <td><i class="fas fa-user mr-2"></i>@user.UserName</td>
+                                <td>
+                                    @if (userRoles.ContainsKey(user.UserName))
+                                    {
+                                        @foreach (var role in userRoles[user.UserName])
+                                        {
+                                            <span class="badge badge-info text-dark font-weight-bold mr-2" style="font-size:15px;">@role</span>
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    <button class="btn btn-outline-primary btn-sm edit-button" data-username="@user.UserName">
+                                        <i class="fas fa-edit mr-1"></i>Edit
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="edit-row" id="edit-@user.UserName" style="display:none;">
+                                <td colspan="3">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <div class="form-group">
+                                                <label for="newRole-@user.UserName" class="font-weight-bold">Add Role</label>
+                                                <select class="form-control" id="newRole-@user.UserName" name="newRole">
+                                                    <option value="">Select Role</option>
+                                                    @foreach (var role in roles)
+                                                    {
+                                                        <option value="@role.Name">@role.Name</option>
+                                                    }
+                                                </select>
+                                                <button class="btn btn-success btn-sm mt-2 add-role-button" data-username="@user.UserName">
+                                                    <i class="fas fa-plus mr-1"></i>Add Role
+                                                </button>
+                                            </div>
+                                            <div class="mt-3">
+                                                @if (userRoles.ContainsKey(user.UserName))
+                                                {
+                                                    @foreach (var role in userRoles[user.UserName])
+                                                    {
+                                                        <div class="d-inline-block mr-2 mb-2">
+                                                            <span class="badge badge-info text-dark font-weight-bold p-2">@role</span>
+                                                            <form asp-action="RemoveRole" method="post" class="d-inline">
+                                                                <input type="hidden" name="userName" value="@user.UserName" />
+                                                                <input type="hidden" name="roleName" value="@role" />
+                                                                <button type="submit" class="btn btn-danger btn-sm ml-1">
+                                                                    <i class="fas fa-times"></i>
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <a href="/Config/Portal" class="btn btn-secondary mt-4">Back</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="~/js/role/assign.js"></script>
+}
