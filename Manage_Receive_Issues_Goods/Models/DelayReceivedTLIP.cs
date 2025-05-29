@@ -2,6 +2,7 @@
 
 namespace Manage_Receive_Issues_Goods.Models
 {
+    [Table("delayreceivedtlip")]
     public class DelayReceivedTLIP
     {
         public int Id { get; set; }

@@ -931,71 +931,34 @@ namespace Manage_Receive_Issues_Goods.Controllers
             await _context.SaveChangesAsync();
             return Ok("Tag name detail deleted successfully.");
         }
-        //Delay Received
         [HttpPost]
-        public async Task<IActionResult> DelayPlan(int planDetailId, string newDate, string newTime)
+        public async Task<IActionResult> DelayPlan([FromBody] DelayPlanRequest request)
         {
+            if (request == null || request.PlanDetailId <= 0)
+                return BadRequest("Invalid request.");
+            // Lấy plan detail hiện tại
+            var planDetail = await _context.Plandetailreceivedtlips.FindAsync(request.PlanDetailId);
+            if (planDetail == null)
+                return NotFound("Plan detail not found.");
+            // Lưu vào bảng delay
+            var delay = new DelayReceivedTLIP
+            {
+                PlanDetailId = request.PlanDetailId,
+                OldDate = request.OldDate,
+                NewDate = request.NewDate
+            };
+            _context.DelayReceivedTLIPs.Add(delay);
+
             try
             {
-                if (planDetailId <= 0 || string.IsNullOrWhiteSpace(newDate) || string.IsNullOrWhiteSpace(newTime))
-                {
-                    _logger.LogWarning($"Invalid data: planDetailId={planDetailId}, newDate={newDate}, newTime={newTime}");
-                    return BadRequest("Dữ liệu không hợp lệ.");
-                }
-
-                // Validate date format dd/MM/yyyy
-                if (!DateOnly.TryParseExact(newDate, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out var datePart))
-                {
-                    _logger.LogWarning($"Invalid date format: newDate={newDate}");
-                    return BadRequest("Sai định dạng ngày. Định dạng đúng: dd/MM/yyyy.");
-                }
-
-                // Validate time format HH:mm:ss
-                if (!TimeOnly.TryParseExact(newTime, "HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out var timePart))
-                {
-                    _logger.LogWarning($"Invalid time format: newTime={newTime}");
-                    return BadRequest("Sai định dạng giờ. Định dạng đúng: HH:mm:ss.");
-                }
-
-                var planDetail = await _context.Plandetailreceivedtlips.FindAsync(planDetailId);
-                if (planDetail == null)
-                {
-                    _logger.LogWarning($"Plan detail not found for planDetailId={planDetailId}");
-                    return BadRequest("Không tìm thấy chi tiết kế hoạch.");
-                }
-
-                // Kiểm tra ngày mới không nhỏ hơn ngày hiện tại
-                var currentDate = DateOnly.FromDateTime(DateTime.Now);
-                if (datePart < currentDate)
-                {
-                    _logger.LogWarning($"New date is in the past: newDate={newDate}");
-                    return BadRequest("Ngày mới không được nhỏ hơn ngày hiện tại.");
-                }
-
-                // Lưu thông tin delay
-                var oldDate = DateTime.Today.Add(planDetail.DeliveryTime.ToTimeSpan());
-                var newDateTime = datePart.ToDateTime(timePart);
-
-                var delay = new DelayReceivedTLIP
-                {
-                    PlanDetailId = planDetailId,
-                    OldDate = oldDate,
-                    NewDate = newDateTime,
-                };
-                _context.DelayReceivedTLIPs.Add(delay);
-
-                // Cập nhật lại DeliveryTime cho planDetail
-                planDetail.DeliveryTime = timePart;
-                _context.Plandetailreceivedtlips.Update(planDetail);
-
                 await _context.SaveChangesAsync();
-                return Ok(new { success = true, message = "Delay recorded and plan updated." });
+                return Ok(new { success = true });
             }
-            catch (Exception ex)
+            catch (Exception err)
             {
-                _logger.LogError(ex, "Error in DelayPlan");
-                return BadRequest("Có lỗi xảy ra, không thể cập nhật.");
+                return BadRequest(new { success = false, err = err.Message });
             }
         }
+
     }
- }
+}

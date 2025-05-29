@@ -1703,7 +1703,7 @@
                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit'
-            }) ;
+            });
         }
 
         let formattedLeadTimeEvent;
@@ -1713,7 +1713,7 @@
                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit'
-            }) ;
+            });
         }
 
         let eventDetails = `
@@ -2186,11 +2186,6 @@
             .then(response => response.json())
             .then(data => data.WeekdayId);
     }
-    window.addEventListener("beforeunload", function (e) {
-        e.preventDefault();
-        
-        e.returnValue = 'Are you sure you want to reload or leave this page?';
-    });
     //window.addEventListener('beforeunload', function (e) {
     //    // Standard message is ignored by most browsers, but returning a value triggers the dialog
     //    e.preventDefault();
@@ -2221,20 +2216,66 @@
     });
     $(document).on('click', '[id^="delayButton-"]', function () {
         var planDetailId = this.id.replace('delayButton-', '');
-        console.log('Clicked delayButton, planDetailId:', planDetailId);
-        if (!planDetailId || isNaN(planDetailId)) {
-            alert('Invalid plan detail ID.');
-            return;
-        }
         $('#delayPlanDetailId').val(planDetailId);
         $(`#planModal-${planDetailId}`).modal('hide');
-        $(`#delayModal`).modal('show');
+        $('#delayModal').modal('show');
     });
 
-    $('#confirmDelayBtn').off('click').on('click', function () {
-      
-    });
+    $('#confirmDelayBtn').off('click').on('click', async function () {
+        var planDetailId = $('#delayPlanDetailId').val();
+        var newDate = $('#delayDate').val();
+        var newTime = $('#delayTime').val();
 
+        if (!planDetailId || !newDate || !newTime) {
+            alert('Vui lòng nhập đủ thông tin!');
+            return;
+        }
+
+        // Lấy DeliveryTime từ event
+        var event = calendar.getEvents().find(e => 
+            e.extendedProps.events && 
+            e.extendedProps.events.some(ev => ev.PlanDetailId && ev.PlanDetailId.toString() === planDetailId)
+        );
+        var deliveryTime = "7:00:00"; // fallback mặc định
+        if (event && event.extendedProps.events && event.extendedProps.events.length > 0) {
+            deliveryTime = event.extendedProps.events[0].DeliveryTime;
+        }
+
+        // Ghép ngày hiện tại với giờ của DeliveryTime
+        var now = new Date();
+        var todayStr = now.toISOString().slice(0, 10);
+        var oldDateTime = todayStr + 'T' + deliveryTime; 
+        var newDateTime = newDate + 'T' + newTime + ':00'; 
+
+        await fetch('/TLIPWarehouse/DelayPlan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                planDetailId: parseInt(planDetailId),
+                oldDate: oldDateTime,
+                newDate: newDateTime
+            })
+        })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return res.json();
+            })
+        .then(res => {
+            if (res.success) {
+                $('#delayModal').modal('hide');
+                toastr.success('Delay thành công!');
+                location.reload();
+            } else {
+                toastr.error('Delay thất bại!');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            toastr.error('Có lỗi xảy ra!');
+        });
+    });
 });
-
-

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Manage_Receive_Issues_Goods.Data;
+using Manage_Receive_Issues_Goods.Data.Migrations;
 using Manage_Receive_Issues_Goods.DTO;
 using Manage_Receive_Issues_Goods.Models;
 using Microsoft.EntityFrameworkCore;
@@ -151,16 +152,13 @@ namespace Manage_Receive_Issues_Goods.Repository.Implementations
                 .Where(p => p.Plan.EffectiveDate < today)
                 .ToListAsync();
         }
-
-    }
-
-
-   /* public static class DateTimeExtensions
-    {
         public static DateTime StartOfWeek(this DateTime dt, DayOfWeek startOfWeek)
         {
             int diff = (7 + (dt.DayOfWeek - startOfWeek)) % 7;
             return dt.AddDays(-1 * diff).Date;
         }
-    }*/
+        
+
+    }
+
 }

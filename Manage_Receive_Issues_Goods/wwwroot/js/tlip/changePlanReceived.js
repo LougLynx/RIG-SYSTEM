@@ -379,17 +379,14 @@
                 })
 
             // Optionally, refresh the page or update the UI here
-            
+
         } catch (error) {
             console.error('Error:', error);
             alert(`An error occurred. Please try again.\n Detail: ${error.message}`);
         }
 
         $('#dateModal').modal('hide');
-    }
-});
-
-
+    });
 // 
 // -----------------------------------------------------------------
 function formatDateTime(date) {

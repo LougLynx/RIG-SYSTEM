@@ -1,5 +1,6 @@
 ﻿{
     "$schema": "http://json.schemastore.org/launchsettings.json",
+    "DOTNET_HOTRELOAD_ENABLED": "false",
     "iisSettings": {
         "windowsAuthentication": false,
         "anonymousAuthentication": true,
