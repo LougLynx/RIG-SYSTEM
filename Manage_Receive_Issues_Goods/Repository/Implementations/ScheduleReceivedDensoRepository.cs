@@ -152,13 +152,13 @@ namespace Manage_Receive_Issues_Goods.Repository.Implementations
                 .Where(p => p.Plan.EffectiveDate < today)
                 .ToListAsync();
         }
-        public static DateTime StartOfWeek(this DateTime dt, DayOfWeek startOfWeek)
-        {
-            int diff = (7 + (dt.DayOfWeek - startOfWeek)) % 7;
-            return dt.AddDays(-1 * diff).Date;
-        }
+        //public static DateTime StartOfWeek(this DateTime dt, DayOfWeek startOfWeek)
+        //{
+        //    int diff = (7 + (dt.DayOfWeek - startOfWeek)) % 7;
+        //    return dt.AddDays(-1 * diff).Date;
+        //}
         
-
+        
     }
 
 }

@@ -670,7 +670,6 @@ namespace Manage_Receive_Issues_Goods.Controllers
             return RedirectToAction("SupplierList");
         }
 
-
         [HttpPost]
         public async Task<IActionResult> DeleteSupplier(string supplierCode)
         {
